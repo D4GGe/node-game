@@ -1,24 +1,53 @@
 <script src="/socket.io/socket.io.js"></script>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
-(function(a,b){"function"===typeof define&&define.amd?define(b):"object"===typeof exports?module.exports=b():a.gyro=b()})(this,function(){var a={x:null,y:null,z:null,alpha:null,beta:null,gamma:null},b={x:0,y:0,z:0,alpha:0,beta:0,gamma:0},g=null,e=[],h={frequency:500,calibrate:function(){for(var f in a)b[f]="number"===typeof a[f]?a[f]:0},getOrientation:function(){return a},startTracking:function(b){g=setInterval(function(){b(a)},h.frequency)},stopTracking:function(){clearInterval(g)},hasFeature:function(a){for(var b in e)if(a==
-e[b])return!0;return!1},getFeatures:function(){return e}};window&&window.addEventListener&&function(){function f(d){e.push("MozOrientation");d.target.removeEventListener("MozOrientation",f,!0);d.target.addEventListener("MozOrientation",function(c){a.x=c.x-b.x;a.y=c.y-b.y;a.z=c.z-b.z},!0)}function g(d){e.push("devicemotion");d.target.removeEventListener("devicemotion",g,!0);d.target.addEventListener("devicemotion",function(c){a.x=c.accelerationIncludingGravity.x-b.x;a.y=c.accelerationIncludingGravity.y-
-b.y;a.z=c.accelerationIncludingGravity.z-b.z},!0)}function h(d){e.push("deviceorientation");d.target.removeEventListener("deviceorientation",h,!0);d.target.addEventListener("deviceorientation",function(c){a.alpha=c.alpha-b.alpha;a.beta=c.beta-b.beta;a.gamma=c.gamma-b.gamma},!0)}window.addEventListener("MozOrientation",f,!0);window.addEventListener("devicemotion",g,!0);window.addEventListener("deviceorientation",h,!0)}();return h});
+	$( document ).ready(function() {
+		var c = document.getElementById("myCanvas");
+		var ctx = c.getContext("2d");
+		var xpos=700;
+		var ypos=350;
+		var ang = 0;
+		//ctx.moveTo(700,350);
+	  	var socket = io('http://192.168.1.199');
+	  	socket.on('comp', function (data) {
+	  		ang = ang - data.data.beta/20
+	  		ypos= ypos + Math.cos(ang * (Math.PI / 180));
+	  		xpos= xpos + Math.sin(ang * (Math.PI / 180));
+			ctx.lineTo(xpos,ypos);
+			ctx.stroke();
+		    console.log("xpos:" +xpos +"ypos:"+ ypos + "angle:" + data.beta);
+		    console.log("ychange:"+ Math.cos(90) + "xchange:" +Math.cos(90) )
+	    //$('#alpha').css({transform: 'rotate(' + data.alpha + 'deg)'})
+	    //$('#beta').css({transform: 'rotate(' + data.beta + 'deg)'})
+	    //$('#gamma').css({transform: 'rotate(' + data.gamma + 'deg)'})
+	    //socket.emit('my other event', { hello: ++data.hello });
+	  });
 
-  var socket = io('http://192.168.1.199');
-  socket.on('news', function (data) {
-    console.log(data);
-    //socket.emit('my other event', { hello: ++data.hello });
+	  socket.emit('comp','letsgo' );
   });
 </script>
 
 <body>
-	<p>This Example just print's the raw accelerometer and gyro data. Will return null if no device information is found.</p>
-	<p>gyro.getFeatures: <span id="features"></span></p>
-	<span id="example"></span>
+ 
+	<!--<div id= "alpha">alpha</div>
+	<div id= "beta">beta</div> 
+	<div id= "gamma">gamma</div>-->
+
+<canvas id="myCanvas" width="1500" height="700" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+
+<script>
+
+
+</script>
 	
-	<script>
-		gyro.startTracking(function(o) {
-			socket.emit('my other event', o);
-		});
-	</script>
 </body>
+<style>
+div{
+	color: white;
+	font-size: 35px;
+	height: 300;
+	float: left;
+	width: 32%;
+	background-color: black;
+}

@@ -13,17 +13,17 @@ function handler (req, res) {
         url="/index.html";
         break;
     case "/mobile" :
-       url ="mobile.html"
+       url ="/mobile.html"
         break;
     default:
-        default code block
+        url ="adfsfds"
 }
 
   fs.readFile(__dirname + url,
   function (err, data) {
     if (err) {
       res.writeHead(500);
-      return res.end('Error loading index.html');
+      return res.end('Error loading'+url);
     }
 
     res.writeHead(200);
@@ -31,10 +31,27 @@ function handler (req, res) {
   });
 }
 
-
+var stearing = "dsfaafsdfads";
+var con_game = 0;
 io.on('connection', function (socket) {
+  var thiscon_game = con_game;
+  con_game++;
+
   //socket.emit('news', { hello: 1 });
-  socket.on('my other event', function (data) {
+  /*socket.on('comp', function (data) {
+    console.log(data);
+    asyncReal();
+  });
+
+   function asyncReal() {
+      console.log(stearing);
+    socket.emit('comp', stearing);
+    setTimeout(asyncReal,500);
+  }*/
+
+  socket.on('mobile', function (data) {
+    stearing = data;
+    io.emit('comp',{"con": thiscon_game ,"data":data});
     //console.log(data);
     //socket.emit('news', { hello:data.hello });
   });
