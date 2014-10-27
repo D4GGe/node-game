@@ -1,29 +1,147 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script>
+
 	$( document ).ready(function() {
-		var c = document.getElementById("myCanvas");
-		var ctx = c.getContext("2d");
-		var xpos=700;
-		var ypos=350;
-		var ang = 0;
+		var width=1500;
+		var height=500;
+		var players = [];
+		var lastupdated = 0;
+		var started = false;
+		var colors = ["#FF0000","#000000","#00FF00"]
+
+		function objectLength(obj) {
+  			var result = 0;
+ 			for(var prop in obj) {
+    			if (obj.hasOwnProperty(prop)) {
+    				result++;
+    				}
+  				}
+  			return result;
+		}
+
+
+		function exsists(data){
+			return players[data.con]!=null;
+		}
+
+		function addPlayer(data){
+			players[data.con] = {'con':data.con,
+			'xpos':700,
+			'ypos':350,
+			'ang':0,
+			'angAdd':data.data.beta,
+			'lastupdated': lastupdated,
+			'lines' : 0
+			//'color' : colors[objectLength(players)]
+			};
+		}
+		function update(data){
+			players[data.con].angAdd = data.data.beta;
+			players[data.con].lastupdated = lastupdated; 
+
+		}
+
+
+
+
+		
+		
 		//ctx.moveTo(700,350);
 	  	var socket = io('http://192.168.1.199');
 	  	socket.on('comp', function (data) {
-	  		ang = ang - data.data.beta/20
-	  		ypos= ypos + Math.cos(ang * (Math.PI / 180));
-	  		xpos= xpos + Math.sin(ang * (Math.PI / 180));
-			ctx.lineTo(xpos,ypos);
-			ctx.stroke();
-		    console.log("xpos:" +xpos +"ypos:"+ ypos + "angle:" + data.beta);
-		    console.log("ychange:"+ Math.cos(90) + "xchange:" +Math.cos(90) )
+	  		
+	  		if(exsists(data)){
+	  			
+	  			update(data);
+	  		}else{
+	  			
+	  			addPlayer(data);
+	  			console.log("player added");
+
+	  		}
+	  		if(!started){
+	  			started = true;
+	  			setInterval(startGame, 20);
+	  		}
+	  		
+	  		
+		    //console.log("xpos:" +xpos +"ypos:"+ ypos + "angle:" + data.beta);
+		    //console.log("ychange:"+ Math.cos(90) + "xchange:" +Math.cos(90) )
 	    //$('#alpha').css({transform: 'rotate(' + data.alpha + 'deg)'})
 	    //$('#beta').css({transform: 'rotate(' + data.beta + 'deg)'})
 	    //$('#gamma').css({transform: 'rotate(' + data.gamma + 'deg)'})
 	    //socket.emit('my other event', { hello: ++data.hello });
 	  });
 
-	  socket.emit('comp','letsgo' );
+
+	  	var c = document.getElementById("myCanvas");
+		var ctx = c.getContext("2d");
+		var xpos=700;
+		var ypos=350;
+		var ang = 0;
+
+		function detectLine(x, y) {
+ 		   var imageData = ctx.getImageData(0, 0, width, height),
+        		inputData = imageData.data,
+        		pData = (~~x + (~~y * width)) * 4;
+    
+    			if (inputData[pData + 3]) {
+    				
+      				  return true;
+    				}
+    
+    				return false;
+				}
+
+	  	function startGame(){
+	  		
+	  		//console.log(objectLength(players));
+	  		for (var i = 0; i < players.length; i++) {
+	  			
+	  			if(players[i]!=null){
+			  		
+
+			  		if(lastupdated-players[i].lastupdated <20){
+			  			ctx.moveTo(players[i].xpos,players[i].ypos);
+			  			oldxpos = players[i].xpos;
+			  			oldypos = players[i].ypos;
+			  			players[i].ang = players[i].ang - players[i].angAdd/20;
+			  			players[i].ypos= players[i].ypos + Math.cos(players[i].ang * (Math.PI / 180));
+			  			players[i].xpos= players[i].xpos + Math.sin(players[i].ang * (Math.PI / 180));
+						//ctx.strokeStyle = players[i].color;
+						
+						if(detectLine(players[i].xpos, players[i].ypos)){
+							//console.log(Math.floor(oldxpos) - Math.floor(players[i].xpos));
+							//console.log(Math.floor(oldypos) - Math.floor(players[i].ypos));
+							//console.log('');
+							//players[i].lines++;
+						}else{
+							players[i].lines = 0;
+						}
+						ctx.lineTo(players[i].xpos,players[i].ypos);
+						//ctx.closePath();
+						ctx.stroke();
+						
+						
+						
+
+
+						// Loop over each pixel and invert the color.
+
+
+					}
+
+				}
+
+	  		}
+	  		lastupdated++;
+			
+	  	}
+	  	
+
+
+	  
   });
 </script>
 
@@ -33,7 +151,7 @@
 	<div id= "beta">beta</div> 
 	<div id= "gamma">gamma</div>-->
 
-<canvas id="myCanvas" width="1500" height="700" style="border:1px solid #d3d3d3;">
+<canvas id="myCanvas" width="1500" height="500" style="border:1px solid #d3d3d3;">
 Your browser does not support the HTML5 canvas tag.</canvas>
 
 <script>
