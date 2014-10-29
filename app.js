@@ -48,11 +48,22 @@ io.on('connection', function (socket) {
     socket.emit('comp', stearing);
     setTimeout(asyncReal,500);
   }*/
-
+  socket.on('tap', function (data) {
+    stearing = data;
+    
+    io.emit('changecolor',{"con": thiscon_game ,"data":"changecolor"});
+    //console.log(data);
+    //socket.emit('news', { hello:data.hello });
+  });
+  console.log(thiscon_game+"c");
+  socket.on(thiscon_game+"c",function (data) {
+    console.log(data);
+  });
   socket.on('mobile', function (data) {
     stearing = data;
     io.emit('comp',{"con": thiscon_game ,"data":data});
     //console.log(data);
     //socket.emit('news', { hello:data.hello });
   });
+
 });

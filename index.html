@@ -3,12 +3,32 @@
 <script>
 
 	$( document ).ready(function() {
+		
+		
+      
 		var width=1500;
 		var height=500;
 		var players = [];
 		var lastupdated = 0;
 		var started = false;
-		var colors = ["#FF0000","#000000","#00FF00"]
+		var c = document.getElementById("myCanvas");
+		var ctx = c.getContext("2d");
+		var colors = ["#FF0000","#0000FF","#00FF00","#8B008B","#E9967A","#ADFF2F","#66CDAA"];
+
+
+			function draw() {  
+        var canvas = document.getElementById("myCanvas");  
+        if (canvas.getContext) {  
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+    }
+    draw();
+		  document.getElementById('myCanvas').addEventListener('click', function() {
+        ctx.clearRect(0, 0, c.width, c.height);
+      }, false);
+
+		
 
 		function objectLength(obj) {
   			var result = 0;
@@ -33,10 +53,15 @@
 			'ang':0,
 			'angAdd':data.data.beta,
 			'lastupdated': lastupdated,
-			'lines' : 0
-			//'color' : colors[objectLength(players)]
+			'lines' : 0,
+			'color' : objectLength(players)
+			//'mark' : document.createElement("div").appendChild(document.createTextNode(data.con+" "))
 			};
+			//var element = document.getElementById("players");
+			//element.appendChild(players[data.con].mark);
+
 		}
+
 		function update(data){
 			players[data.con].angAdd = data.data.beta;
 			players[data.con].lastupdated = lastupdated; 
@@ -49,7 +74,7 @@
 		
 		
 		//ctx.moveTo(700,350);
-	  	var socket = io('http://192.168.1.199');
+	  	var socket = io('http://antonfredriksson.se');
 	  	socket.on('comp', function (data) {
 	  		
 	  		if(exsists(data)){
@@ -62,7 +87,7 @@
 	  		}
 	  		if(!started){
 	  			started = true;
-	  			setInterval(startGame, 20);
+	  			setInterval(startGame,10);
 	  		}
 	  		
 	  		
@@ -74,9 +99,17 @@
 	    //socket.emit('my other event', { hello: ++data.hello });
 	  });
 
+	  	socket.on('changecolor', function (data) {
+	  		
+	  	players[data.con].color++;
 
-	  	var c = document.getElementById("myCanvas");
-		var ctx = c.getContext("2d");
+	  	socket.emit(data.con+"c",colors[players[data.con].color % colors.length]);
+	  	});
+
+
+
+	  	
+		ctx.lineWidth = 20;
 		var xpos=700;
 		var ypos=350;
 		var ang = 0;
@@ -101,30 +134,45 @@
 	  			
 	  			if(players[i]!=null){
 			  		
-
+	  				ctx.beginPath();
 			  		if(lastupdated-players[i].lastupdated <20){
 			  			if(players[i].lines>2){
-			  				console.log('over');
+			  				//console.log('over');
 			  			}
+			  			if(players[i].ypos < 0){
+			  				console.log('00000')
+			  				players[i].ypos = c.height;
+			  				players[i].ang = players[i].ang + Math.PI;
+			  			}
+			  			if(players[i].ypos > c.height){
+			  				console.log('00000')
+			  				players[i].ypos = 0;
+			  				players[i].ang = players[i].ang + Math.PI;
+			  			}
+			  			if(players[i].xpos < 0){
+			  				console.log('00000')
+			  				players[i].xpos = c.width;
+			  				players[i].ang = players[i].ang + Math.PI;
+			  			}
+			  			if(players[i].xpos > c.width){
+			  				console.log('00000')
+			  				players[i].xpos = 0;
+			  				players[i].ang = players[i].ang + Math.PI;
+			  			}
+
 			  			ctx.moveTo(players[i].xpos,players[i].ypos);
 			  			oldxpos = players[i].xpos;
-			  			oldypos = players[i].ypos;
-			  			players[i].ang = players[i].ang - players[i].angAdd/20;
-			  			players[i].ypos= players[i].ypos + Math.cos(players[i].ang * (Math.PI / 180));
-			  			players[i].xpos= players[i].xpos + Math.sin(players[i].ang * (Math.PI / 180));
-						//ctx.strokeStyle = players[i].color;
+			  			
+
+			  			players[i].ang = players[i].ang - players[i].angAdd/30;
+			  			players[i].ypos= players[i].ypos + 2*Math.cos(players[i].ang * (Math.PI / 180));
+			  			players[i].xpos= players[i].xpos + 2*Math.sin(players[i].ang * (Math.PI / 180));
+						ctx.strokeStyle = colors[players[i].color % colors.length];
 						
-						if(detectLine(players[i].xpos, players[i].ypos)){
-							//console.log(Math.floor(oldxpos) - Math.floor(players[i].xpos));
-							//console.log(Math.floor(oldypos) - Math.floor(players[i].ypos));
-							//console.log('');
-							players[i].lines++;
-						}else{
-							players[i].lines = 0;
-						}
+						
 						ctx.lineTo(players[i].xpos,players[i].ypos);
-						//ctx.closePath();
 						ctx.stroke();
+						ctx.closePath();
 						
 						
 						
@@ -141,20 +189,17 @@
 	  		lastupdated++;
 			
 	  	}
-	  	
-
-
 	  
   });
 </script>
 
-<body>
+<body style="padding:0;margin:0;">
  
 	<!--<div id= "alpha">alpha</div>
 	<div id= "beta">beta</div> 
 	<div id= "gamma">gamma</div>-->
 
-<canvas id="myCanvas" width="1500" height="500" style="border:1px solid #d3d3d3;">
+<canvas id="myCanvas" width="1600" height="800" style="background:#000;">
 Your browser does not support the HTML5 canvas tag.</canvas>
 
 <script>
@@ -164,11 +209,28 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 	
 </body>
 <style>
+ #buttons {
+        
+      }
+      #buttons > input {
+        padding: 10px;
+        display: block;
+        margin-top: 5px;
+      }
 div{
 	color: white;
 	font-size: 35px;
-	height: 300;
+	height: 100px;
 	float: left;
 	width: 32%;
 	background-color: black;
 }
+
+#players > div{
+height: 100px;
+width: 100px;
+color: red;
+
+}
+
+</style>
