@@ -3,7 +3,7 @@
 <script>
 
 	$( document ).ready(function() {
-		
+
 		
       
 		var width=1500;
@@ -76,7 +76,9 @@
 		//ctx.moveTo(700,350);
 	  	var socket = io('http://antonfredriksson.se');
 	  	socket.on('comp', function (data) {
-	  		
+	  	//	$('#beta').css({transform: 'rotate(' + data.data.beta + 'deg)'})
+	  	//	 $('#alpha').css({transform: 'rotate(' + data.data.alpha + 'deg)'})
+	    //  $('#gamma').css({transform: 'rotate(' + data.data.gamma + 'deg)'})
 	  		if(exsists(data)){
 	  			
 	  			update(data);
@@ -94,7 +96,7 @@
 		    //console.log("xpos:" +xpos +"ypos:"+ ypos + "angle:" + data.beta);
 		    //console.log("ychange:"+ Math.cos(90) + "xchange:" +Math.cos(90) )
 	    //$('#alpha').css({transform: 'rotate(' + data.alpha + 'deg)'})
-	    //$('#beta').css({transform: 'rotate(' + data.beta + 'deg)'})
+	    
 	    //$('#gamma').css({transform: 'rotate(' + data.gamma + 'deg)'})
 	    //socket.emit('my other event', { hello: ++data.hello });
 	  });
@@ -218,12 +220,12 @@ Your browser does not support the HTML5 canvas tag.</canvas>
         margin-top: 5px;
       }
 div{
-	color: white;
+	color: black;
 	font-size: 35px;
 	height: 100px;
 	float: left;
 	width: 32%;
-	background-color: black;
+	background-color: red;
 }
 
 #players > div{

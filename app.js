@@ -33,6 +33,9 @@ function handler (req, res) {
 
 var stearing = "dsfaafsdfads";
 var con_game = 0;
+
+
+
 io.on('connection', function (socket) {
   var thiscon_game = con_game;
   con_game++;
@@ -57,10 +60,11 @@ io.on('connection', function (socket) {
   });
   console.log(thiscon_game+"c");
   socket.on(thiscon_game+"c",function (data) {
-    console.log(data);
+      
   });
   socket.on('mobile', function (data) {
     stearing = data;
+  //  console.log(data);
     io.emit('comp',{"con": thiscon_game ,"data":data});
     //console.log(data);
     //socket.emit('news', { hello:data.hello });
